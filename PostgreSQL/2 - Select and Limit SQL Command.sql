@@ -1,0 +1,35 @@
+
+-- SELECT with LIMIT command.
+
+select  id, 
+		airline_name, 
+		airline_code, 
+		flight_number, 
+		origin_airport,
+		origin_city, 
+		origin_state,
+		destination_airport,
+		destination_city,
+		destination_state,
+		scheduled_flight_time,
+		scheduled_departure_time,
+		scheduled_arrival_time,
+		actual_departure_time,
+		actual_arrival_time,
+		distance,
+		was_cancelled,
+		cancellation_reason,
+		"day",
+		air_time,
+		air_traffic_delay,
+		arrival_delay,
+		carrier_delay,
+		departure_delay,
+		late_aircraft_delay,
+		security_delay,
+		weather_delay,
+		wheels_on_time,
+		wheels_off_time,
+		day_of_week
+from public.flights
+limit 10;
