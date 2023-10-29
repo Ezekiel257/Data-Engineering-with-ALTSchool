@@ -4,7 +4,7 @@
 # class: student
 class Student:
     
-    def __init__(first_name, last_name, email, age, self):
+    def __init__(self, first_name, last_name, email, age):
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -32,8 +32,7 @@ if __name__ == "__main__":
     
     student = Student(first_name, last_name, email, age)
     
-    print(student.first_name)
-    
+    print(student.introduce())    
     
     
     
