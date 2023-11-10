@@ -3,141 +3,74 @@ import json
 import csv
 import time
 
-# import pandas as pd
-
-
 # Define the directory where your JSON files are located
-ABSOLUTE_PATH = r"/Users/macbook/Desktop/Data Engineering with ALTSchool/Assessment/fintech"
+ABSOLUTE_PATH = r"C:\Users\HP\Desktop\Data-Engineering-with-ALTSchool\Assessment\fintech"
 CARDS_PATH = "events/cards"
 USERS_PATH = "events/users"
 
 
-
-def load_users_json(folder_path):
-    
-    # capture start time
-    start_time = time.time()
-    
-    # Initialize an empty list to store the combined data
-    users_data = []
+def load_json_data(folder_path):
+    data_list = []
 
     # Iterate through the files in the directory
     for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path,filename)
-        
-        # print(f"LOG: Processing File {file_path}")
-        
+        file_path = os.path.join(folder_path, filename)
+
         # Load the JSON data from the file
         with open(file_path, 'r') as json_file:
             data = json.load(json_file)
-        
-        
+
         # flatten json data
-        id = data['payload'].get('id')
-        name = data['payload'].get('name')
-        address = data['payload'].get('address')
-        job = data['payload'].get('job')
-        score = data['payload'].get('score')
-        type = data['metadata'].get('type')
-        event_id = data['metadata'].get('event_id')
-        event_at = data['metadata'].get('event_at')
-        
-        # single user
-        user = {'id':id, 'name':name, 'address':address, 'job':job, 'score':score,'type':type, 'event_id':event_id, 'event_at':event_at}
-        
-        # append each user
-        users_data.append(user)
-        
-    # dump data into a csv file
-    with open('users_data.json', 'w') as json_file:
-        json.dump(users_data, json_file)
-    
-    # capture end time
-    end_time = time.time()
-    
-    processing_time = end_time - start_time
-    print(f"Users Data Stored Successfully at time execution {processing_time}")
-    print(f"LOG:-> Processed {len(users_data)} users data.")
+        payload = data['payload']
+        metadata = data['metadata']
 
-    return users_data
+        flattened_data = {
+            **payload,
+            **metadata,
+            'type': payload.get('type'),  # Ensure type is included
+            'event_id': metadata.get('event_id'),
+            'event_at': metadata.get('event_at'),
+        }
+
+        data_list.append(flattened_data)
+
+    return data_list
 
 
-
-def load_cards_json(folder_path):
-    
-    # capture start time
-    start_time = time.time()
-    
-    # Initialize an empty list to store the combined data
-    cards_data = []
-
-    # Iterate through the files in the directory
-    for filename in os.listdir(folder_path):
-        file_path = os.path.join(folder_path,filename)
-        
-        # print(f"LOG: Processing File {file_path}")
-        
-        # Load the JSON data from the file
-        with open(file_path, 'r') as json_file:
-            data = json.load(json_file)
-        
-        # flatten json data
-        id = data['payload'].get('id')
-        user_id = data['payload'].get('user_id')
-        created_by_name = data['payload'].get('created_by_name')
-        updated_at = data['payload'].get('updated_at')
-        created_at = data['payload'].get('created_at')
-        active = data['payload'].get('active')
-        type = data['metadata'].get('type')
-        event_id = data['metadata'].get('event_id')
-        event_at = data['metadata'].get('event_at')
-        
-    
-        card = {'id':id, 'user_id':user_id, 'created_by_name':created_by_name, 'updated_at':updated_at, 'created_at':created_at,'active':active,'type':type, 'event_id':event_id, 'event_at':event_at}
-        
-        
-        # append each card
-        cards_data.append(card)
-    
-    # dump data into a json file
-    with open('cards_data.json', 'w') as json_file:
-        json.dump(cards_data, json_file)
-        
-    # capture end time
-    end_time = time.time()
-    
-    processing_time = end_time - start_time
-    print(f"Cards Data Stored Successfully at time execution {processing_time}")
-    print(f"LOG:-> Processed {len(cards_data)} cards data.")
-        
-    return cards_data
+def store_data_as_json(data, output_filename):
+    # Dump data into a json file
+    with open(output_filename, 'w') as json_file:
+        json.dump(data, json_file)
 
 
-# Function to process JSON files and write data to CSV
-def process_json_to_csv(json_data, csv_filename):
+def process_data_to_csv(data, csv_filename):
     # Open the CSV file for writing
     with open(csv_filename, 'w', newline='') as csvfile:
         # Create a CSV writer object
         csv_writer = csv.writer(csvfile)
 
         # Write the header row
-        header = json_data[0].keys()
+        header = data[0].keys()
         csv_writer.writerow(header)
 
         # Write the data rows
-        for item in json_data:
+        for item in data:
             csv_writer.writerow(item.values())
 
-    print(f"JSON data has been successfully converted to CSV and saved in {csv_filename}")
+    print(f"Data has been successfully converted to CSV and saved in {csv_filename}")
 
 
+def main():
+    # Load users data
+    users_data = load_json_data(os.path.join(ABSOLUTE_PATH, USERS_PATH))
+    store_data_as_json(users_data, 'users_data.json')
+    process_data_to_csv(users_data, 'users_data.csv')
+
+    # Load cards data
+    cards_data = load_json_data(os.path.join(ABSOLUTE_PATH, CARDS_PATH))
+    store_data_as_json(cards_data, 'cards_data.json')
+    process_data_to_csv(cards_data, 'cards_data.csv')
 
 
-
-if  __name__ == "__main__":
-    users_data = load_users_json(USERS_PATH)
-    cards_data = load_cards_json(CARDS_PATH)
-    
-    process_json_to_csv(users_data, 'users_data.csv')
-    process_json_to_csv(cards_data, 'cards_data.csv')
- 
+if __name__ == "__main__":
+    main()
